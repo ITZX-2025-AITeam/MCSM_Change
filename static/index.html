@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qwen智驾分析系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
+        body { background-color: #f6f8fa; min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
+        .container { width: 90%; max-width: 800px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); overflow: hidden; }
+        header { background: #f6f8fa; color: #24292e; padding: 20px; text-align: center; border-bottom: 1px solid #e1e4e8; }
+        h1 { font-size: 1.8rem; margin-bottom: 8px; font-weight: 600; }
+        .subtitle { font-size: 0.9rem; color: #6a737d; }
+        .subtitle a { color: #0366d6; text-decoration: none; }
+        .subtitle a:hover { text-decoration: underline; }
+        .content { padding: 20px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #24292e; font-size: 14px; }
+        textarea, input[type="file"] { width: 100%; padding: 8px 12px; background-color: #ffffff; border: 1px solid #d1d5da; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+        textarea:focus, input[type="file"]:focus { border-color: #0366d6; outline: none; box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1); }
+        textarea { min-height: 100px; resize: vertical; }
+        button { background: #2ea44f; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; transition: background 0.3s; font-weight: 600; letter-spacing: 0.5px; margin-top: 10px; }
+        button:hover { background: #2c974b; }
+        .preview-container { margin-top: 25px; text-align: center; }
+        .preview-title { margin-bottom: 15px; color: #24292e; font-size: 18px; font-weight: 600; }
+        #imagePreview { width: 100%; height: 300px; object-fit: contain; border-radius: 6px; border: 1px solid #e1e4e8; background-color: #f6f8fa; padding: 5px; }
+        .result-container { margin-top: 30px; padding: 20px; background: #f6f8fa; border-radius: 6px; min-height: 100px; display: none; border: 1px solid #e1e4e8; }
+        .result-title { color: #24292e; margin-bottom: 10px; font-weight: 600; font-size: 18px; }
+        #answer { font-size: 16px; color: #24292e; line-height: 1.4; white-space: pre-line; padding: 10px 0; }
+        .loader { display: none; text-align: center; margin: 20px 0; }
+        .processing-time { margin-top: 15px; font-size: 13px; color: #6a737d; text-align: right; }
+        .warning { color: #d73a49; font-weight: 600; }
+        .feature-info { margin-top: 10px; padding: 10px; background-color: #f1f8ff; border-radius: 6px; font-size: 14px; color: #0366d6; border: 1px solid #c8e1ff; }
+        .loader p { margin-top: 10px; color: #6a737d; }
+        .progress-bar-container { width: 80%; height: 20px; background-color: #e1e4e8; border-radius: 10px; margin: 20px auto 10px auto; overflow: hidden; border: 1px solid #d1d5da; }
+        .progress-bar-fill { width: 0%; height: 100%; background-color: #2ea44f; border-radius: 8px; transition: width 0.2s linear; }
+        #progressText { font-size: 16px; font-weight: 600; color: #24292e; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Qwen2.5-VL 智驾分析系统</h1>
+            <div class="subtitle">AI智能靶场模拟环境 (<a href="/config">修改提示词</a> | <a href="/defense">防御配置</a>)</div>
+        </header>
+        <div class="content">
+            <div class="input-group">
+                <label for="imageUpload">上传道路场景图片</label>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+            <div class="input-group">
+                <label for="question">输入问题 (智驾场景分析)</label>
+                <textarea id="question" placeholder="例如：前方有哪些车辆？交通信号灯状态如何？是否有行人横穿马路？"></textarea>
+            </div>
+            <button id="analyzeBtn">分析道路场景</button>
+            <div class="preview-container">
+                <h3 class="preview-title">道路场景预览</h3>
+                <img id="imagePreview" alt="预览图">
+                <div class="feature-info" id="featureInfo">AI增强结果</div>
+            </div>
+            <div class="loader">
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+                <div id="progressText">0%</div>
+                <p>AI正在分析道路场景，请稍候...</p>
+            </div>
+            <div class="result-container">
+                <h3 class="result-title">智驾分析结果</h3>
+                <div id="answer"></div>
+                <div class="processing-time" id="processingTime"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        marked.setOptions({ breaks: true, gfm: true, sanitize: true });
+        let progressInterval = null;
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('featureInfo').textContent = 'AI增强结果';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+        document.getElementById('analyzeBtn').addEventListener('click', async function() {
+            const imageInput = document.getElementById('imageUpload');
+            const questionInput = document.getElementById('question');
+            const resultContainer = document.querySelector('.result-container');
+            const loader = document.querySelector('.loader');
+            if (!imageInput.files[0] || !questionInput.value.trim()) {
+                alert('请上传图片并输入问题');
+                return;
+            }
+            if (progressInterval) clearInterval(progressInterval);
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            let progress = 0;
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+            loader.style.display = 'block';
+            resultContainer.style.display = 'none';
+            const intervalTime = 250;
+            const totalTime = 25000;
+            const progressIncrement = (99 / totalTime) * intervalTime;
+            progressInterval = setInterval(() => {
+                progress = Math.min(progress + progressIncrement, 99);
+                const displayProgress = Math.floor(progress);
+                progressBar.style.width = displayProgress + '%';
+                progressText.textContent = displayProgress + '%';
+                if (progress >= 99) {
+                    clearInterval(progressInterval);
+                }
+            }, intervalTime);
+            try {
+                const formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+                formData.append('question', questionInput.value);
+                const response = await fetch('/analyze', { method: 'POST', body: formData });
+                const data = await response.json();
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+                if (response.ok) {
+                    document.getElementById('answer').innerHTML = marked.parse(data.answer);
+                    document.getElementById('imagePreview').src = data.feature_image;
+                    document.getElementById('featureInfo').innerHTML = `AI增强结果：检测到 <span class="warning">${data.feature_count}</span> 个特征点`;
+                    document.getElementById('processingTime').innerHTML = `服务端处理: ${data.processing_time}秒`;
+                    resultContainer.style.display = 'block';
+                } else {
+                    alert(`错误: ${data.error || '请求失败'}`);
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+            } finally {
+                clearInterval(progressInterval);
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
