@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线测试页面</title>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: #f6f8fa;
+            min-height: 100vh;
+            color: #24292f;
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(27,31,36,0.04), 0 1px 0 rgba(255,255,255,0.25);
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #24292f;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .status-card {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2da44e;
+        }
+
+        .status-card.error {
+            border-left-color: #cf222e;
+        }
+
+        .status-card.warning {
+            border-left-color: #d97706;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+        }
+
+        .test-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #d0d7de;
+        }
+
+        .test-item.success {
+            border-color: #2da44e;
+            background: #f6ffed;
+        }
+
+        .test-item.error {
+            border-color: #cf222e;
+            background: #ffebe9;
+        }
+
+        .test-item.warning {
+            border-color: #d97706;
+            background: #fffbf0;
+        }
+
+        .status-icon {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .status-icon.success {
+            color: #2da44e;
+        }
+
+        .status-icon.error {
+            color: #cf222e;
+        }
+
+        .status-icon.warning {
+            color: #d97706;
+        }
+
+        .btn {
+            background-color: #0969da;
+            color: white;
+            border: 1px solid #0969da;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: #0858b9;
+            border-color: #0858b9;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background-color: #656d76;
+            border-color: #656d76;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 模型评估系统 - 离线测试</h1>
+            <p>验证系统在离线状态下的基本功能</p>
+        </div>
+
+        <div class="status-card" id="connection-status">
+            <h3>🌐 连接状态</h3>
+            <div id="connection-details">正在检测...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 功能测试</h3>
+            <div class="test-item" id="static-files-test">
+                <span>静态文件加载</span>
+                <span class="status-icon" id="static-files-icon">⏳</span>
+            </div>
+            <div class="test-item" id="templates-test">
+                <span>模板渲染</span>
+                <span class="status-icon" id="templates-icon">⏳</span>
+            </div>
+            <div class="test-item" id="chart-js-test">
+                <span>Chart.js 本地加载</span>
+                <span class="status-icon" id="chart-js-icon">⏳</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 系统信息</h3>
+            <div class="test-item">
+                <span>Flask 应用状态</span>
+                <span class="status-icon success">✅</span>
+            </div>
+            <div class="test-item">
+                <span>静态文件目录</span>
+                <span class="status-icon success">✅</span>
+            </div>
+            <div class="test-item">
+                <span>模板目录</span>
+                <span class="status-icon success">✅</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="runTests()">🔄 重新测试</button>
+            <button class="btn" onclick="window.location.href='/'">🏠 返回主页</button>
+        </div>
+    </div>
+
+    <script>
+        // 测试静态文件加载
+        function testStaticFiles() {
+            const testUrl = '/static/js/chart.js';
+            fetch(testUrl)
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('static-files-icon').className = 'status-icon success';
+                        document.getElementById('static-files-icon').textContent = '✅';
+                    } else {
+                        throw new Error('Static file not found');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('static-files-icon').className = 'status-icon error';
+                    document.getElementById('static-files-icon').textContent = '❌';
+                });
+        }
+
+        // 测试模板渲染
+        function testTemplates() {
+            document.getElementById('templates-icon').className = 'status-icon success';
+            document.getElementById('templates-icon').textContent = '✅';
+        }
+
+        // 测试 Chart.js 加载
+        function testChartJS() {
+            // 等待一小段时间确保 Chart.js 加载完成
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined' && Chart.Chart) {
+                    // 尝试创建一个简单的图表来验证功能
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const testChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: ['Test'],
+                                datasets: [{
+                                    label: 'Test',
+                                    data: [1],
+                                    borderColor: '#0969da'
+                                }]
+                            },
+                            options: {
+                                responsive: false,
+                                animation: false
+                            }
+                        });
+                        testChart.destroy(); // 清理测试图表
+                        
+                        document.getElementById('chart-js-icon').className = 'status-icon success';
+                        document.getElementById('chart-js-icon').textContent = '✅';
+                    } catch (error) {
+                        document.getElementById('chart-js-icon').className = 'status-icon error';
+                        document.getElementById('chart-js-icon').textContent = '❌';
+                    }
+                } else {
+                    document.getElementById('chart-js-icon').className = 'status-icon error';
+                    document.getElementById('chart-js-icon').textContent = '❌';
+                }
+            }, 500);
+        }
+
+        // 检测连接状态
+        function checkConnection() {
+            const statusCard = document.getElementById('connection-status');
+            const details = document.getElementById('connection-details');
+            
+            // 尝试访问一个简单的API端点
+            fetch('/get_status')
+                .then(response => {
+                    if (response.ok) {
+                        statusCard.className = 'status-card';
+                        details.innerHTML = '<strong>✅ 在线模式</strong><br>系统可以正常连接到模型服务';
+                    } else {
+                        throw new Error('API not available');
+                    }
+                })
+                .catch(error => {
+                    statusCard.className = 'status-card warning';
+                    details.innerHTML = '<strong>⚠️ 离线模式</strong><br>系统在离线状态下运行，部分功能可能受限';
+                });
+        }
+
+        // 运行所有测试
+        function runTests() {
+            // 重置所有测试状态
+            const testItems = document.querySelectorAll('.test-item .status-icon');
+            testItems.forEach(item => {
+                item.className = 'status-icon';
+                item.textContent = '⏳';
+            });
+
+            // 运行测试
+            setTimeout(testStaticFiles, 100);
+            setTimeout(testTemplates, 200);
+            setTimeout(testChartJS, 600); // 给 Chart.js 更多时间加载
+            setTimeout(checkConnection, 800);
+        }
+
+        // 页面加载时运行测试
+        window.addEventListener('load', function() {
+            runTests();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型报告诊断系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">
+                    <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14,2 14,8 20,8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10,9 9,9 8,9"></polyline>
+                    </svg>
+                    模型报告诊断系统
+                </h1>
+                <p class="header-subtitle">Professional Medical Report Diagnosis System</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧报告列表 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>报告列表</h2>
+                    <span class="report-count" id="reportCount">0 个报告</span>
+                </div>
+                <div class="report-list" id="reportList">
+                    <div class="loading">加载中...</div>
+                </div>
+
+                <!-- 信息通知栏 -->
+                <div class="notification-panel" id="notificationPanel">
+                    <div class="notification-header">信息通知 <span class="badge" id="notificationCount">0</span></div>
+                    <div class="notification-list" id="notificationList">
+                        <div class="notification-empty">暂无通知</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 主要内容区域 -->
+            <main class="content">
+                <!-- 折叠侧栏后用于恢复的悬浮按钮 -->
+                <button class="focus-floating-btn hidden" id="focusRestoreBtn" title="恢复侧栏">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                    恢复
+                </button>
+                <!-- 报告内容显示区域 -->
+                <div class="report-container">
+                    <div class="report-header">
+                        <h2 id="reportTitle">请选择报告</h2>
+                        <div class="report-actions">
+                            <button class="btn btn-secondary hidden" id="backBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                                返回
+                            </button>
+                            <button class="btn btn-secondary" id="focusBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                专注
+                            </button>
+                            <button class="btn btn-secondary" id="resetBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 1 0 3-6.708"></path>
+                                    <polyline points="3 3 3 9 9 9"></polyline>
+                                </svg>
+                                重置
+                            </button>
+                            <button class="btn btn-secondary" id="compareBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 3H5a2 2 0 0 0-2 2v5h7z"></path>
+                                    <path d="M21 14v5a2 2 0 0 1-2 2h-5v-7z"></path>
+                                    <rect x="10" y="10" width="4" height="4"></rect>
+                                </svg>
+                                对比
+                            </button>
+                            <button class="btn btn-secondary" id="refreshBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                                刷新
+                            </button>
+                        </div>
+                    </div>
+                    <div class="report-content-wrapper">
+                        <div class="report-content markdown-body" id="reportContent">
+                            <div class="empty-state">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10,9 9,9 8,9"></polyline>
+                                </svg>
+                                <h3>欢迎使用模型报告诊断系统</h3>
+                                <p>请从左侧列表中选择一个报告开始诊断工作</p>
+                            </div>
+                        </div>
+
+                        <!-- 对比模式容器（默认隐藏） -->
+                        <div class="compare-wrapper hidden" id="compareWrapper">
+                            <div class="compare-pane" id="leftPane">
+                                <div class="pane-header">左侧报告</div>
+                                <div class="pane-content markdown-body" id="leftPaneContent"></div>
+                            </div>
+                            <div class="compare-pane" id="rightPane">
+                                <div class="pane-header">右侧报告</div>
+                                <div class="pane-content markdown-body" id="rightPaneContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 诊断表单区域（默认隐藏） -->
+                <div class="diagnosis-container" id="diagnosisContainer" style="display: none;">
+                    <div class="diagnosis-header">
+                        <h3>诊断信息</h3>
+                        <div class="save-status" id="saveStatus"></div>
+                    </div>
+                    
+                    <form class="diagnosis-form" id="diagnosisForm">
+                        <div class="form-group" id="groupModelDiagnosis">
+                            <div class="form-group-header">
+                                <label for="modelDiagnosis">模型诊断意见</label>
+                                <div class="group-actions">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="editModelDiagnosisBtn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                        </svg>
+                                        编辑
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm hidden" id="saveModelDiagnosisBtn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        保存诊断
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="diagnosis-view" id="modelDiagnosisView">暂无内容</div>
+                            <textarea 
+                                id="modelDiagnosis" 
+                                name="modelDiagnosis" 
+                                rows="4" 
+                                class="hidden"
+                                placeholder="请输入AI模型的诊断意见..."
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group" id="groupRepairSuggestion">
+                            <div class="form-group-header">
+                                <label for="repairSuggestion">建议修复方式</label>
+                                <div class="group-actions">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="editRepairSuggestionBtn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                        </svg>
+                                        编辑
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm hidden" id="saveRepairSuggestionBtn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        保存诊断
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="diagnosis-view" id="repairSuggestionView">暂无内容</div>
+                            <textarea 
+                                id="repairSuggestion" 
+                                name="repairSuggestion" 
+                                rows="4" 
+                                class="hidden"
+                                placeholder="请输入建议的修复方式..."
+                            ></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="clearBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="m19 6 v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                清空
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 开始诊断按钮容器，选择报告后显示 -->
+                <div class="show-diagnosis-btn-container" id="showDiagnosisBtnContainer" style="display: none;">
+                    <button class="btn btn-primary" id="showDiagnosisBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                        <span id="showDiagnosisBtnText">开始诊断</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

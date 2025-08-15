@@ -27,6 +27,7 @@ import LinkCard from "@/widgets/others/LinkCard.vue";
 import QuickStartFlow from "@/widgets/setupApp/QuickStartFlow.vue";
 import McPreset from "@/widgets/setupApp/McPreset.vue";
 import IframeCard from "@/widgets/others/IframeCard.vue";
+import FullscreenIframeCard from "@/widgets/others/FullscreenIframeCard.vue";
 import ClockCard from "@/widgets/others/ClockCard.vue";
 import UserStatusBlock from "@/widgets/UserStatusBlock.vue";
 import UserInstanceList from "@/widgets/UserInstanceList.vue";
@@ -74,6 +75,7 @@ export const LAYOUT_CARD_TYPES: { [key: string]: any } = {
   QuickStartFlow,
   McPreset,
   IframeCard,
+  FullscreenIframeCard,
   TextCard,
   LinkCard,
   ClockCard,

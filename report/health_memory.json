@@ -1,0 +1,17 @@
+{
+  "Qwen3-1.7B": {
+    "model=/opt/files/models/Qwen3-1.7B;loaded=True": {
+      "last_missing_used_false": false
+    }
+  },
+  "YOLO-v8n": {
+    "model=/opt/files/models/YOLO-v8n;loaded=True": {
+      "last_missing_used_false": false
+    }
+  },
+  "Qwen3-1.7B-new": {
+    "model=/opt/files/models/Qwen3-1.7B-new;loaded=True": {
+      "last_missing_used_false": false
+    }
+  }
+}

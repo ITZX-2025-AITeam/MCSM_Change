@@ -73,17 +73,24 @@ const originRouterConfig: RouterConfig[] = [
       permission: ROLE.ADMIN
     }
   },
-
   {
-    path: "/custom-build",
-    name: t("TXT_CODE_16d71240"),
+    path: "/testpage",
+    name: t("模型检测"),
+    component: LayoutContainer,
+    meta: {
+      mainMenu: true,
+      permission: ROLE.ADMIN 
+    }
+  },
+  {
+    path: "/addpage",
+    name: t("报告分析"),
     component: LayoutContainer,
     meta: {
       mainMenu: true,
       permission: ROLE.ADMIN
     }
   },
-
   {
     path: "/instances",
     name: t("TXT_CODE_e21473bc"),
@@ -139,12 +146,14 @@ const originRouterConfig: RouterConfig[] = [
       }
     ]
   },
+  // 检查点 1
   {
     path: "/users",
     name: t("TXT_CODE_1deaa2dd"),
     component: LayoutContainer,
     meta: {
       mainMenu: true,
+      // mainMenu: false,
       permission: ROLE.ADMIN
     },
     children: [

@@ -57,6 +57,8 @@ export enum LayoutCardHeight {
   MEDIUM = "400px",
   BIG = "600px",
   LARGE = "800px",
+  XLARGE = "1000px",
+  XXLARGE = "1200px",
   AUTO = "unset"
 }
 
@@ -68,6 +70,27 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       theme: {
         backgroundImage: ""
       }
+    },
+    {
+      page: "/testpage",
+      items: []
+    },
+    {
+      page: "/addpage",
+      items: [
+        {
+          id: getRandomId(),
+          type: "IframeCard",
+          title: t("模型报告诊断系统"),
+          meta: {
+            url: "http://localhost:3000",
+            full: false
+          },
+          width: 12,
+          description: t("模型报告诊断系统"),
+          height: LayoutCardHeight.XXLARGE
+        }
+      ]
     },
     {
       page: "/",

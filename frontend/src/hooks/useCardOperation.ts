@@ -9,6 +9,8 @@ export function useCardOperation() {
   };
 
   const LEVEL_LIST = [
+    LayoutCardHeight.XXLARGE,
+    LayoutCardHeight.XLARGE,
     LayoutCardHeight.LARGE,
     LayoutCardHeight.BIG,
     LayoutCardHeight.MEDIUM,

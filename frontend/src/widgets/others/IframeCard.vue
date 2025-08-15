@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { $t as t } from "@/lang/i18n";
 import { useAppToolsStore } from "@/stores/useAppToolsStore";
 import { useLayoutContainerStore } from "@/stores/useLayoutContainerStore";
@@ -9,7 +9,6 @@ import type { LayoutCard } from "@/types/index";
 import { Empty } from "ant-design-vue";
 import { FullscreenOutlined, FullscreenExitOutlined } from "@ant-design/icons-vue";
 import { useLayoutCardTools } from "@/hooks/useCardTools";
-import { computed } from "vue";
 
 const props = defineProps<{
   card: LayoutCard;
@@ -31,6 +30,16 @@ const editImgSrc = async () => {
 
 const myIframe = ref<HTMLIFrameElement | null>(null);
 const myIframeLoading = ref(false);
+const hasError = ref(false);
+
+const errorHost = computed(() => {
+  try {
+    const u = new URL(urlSrc.value);
+    return u.hostname || urlSrc.value;
+  } catch {
+    return urlSrc.value;
+  }
+});
 
 const toggleFullCard = () => {
   setMetaValue("full", !fullCard.value);
@@ -43,6 +52,11 @@ onMounted(() => {
       if (myIframe.value) {
         myIframe.value.onload = () => {
           myIframeLoading.value = false;
+          hasError.value = false;
+        };
+        myIframe.value.onerror = () => {
+          myIframeLoading.value = false;
+          hasError.value = true;
         };
       }
     } catch (error: any) {
@@ -81,8 +95,14 @@ onMounted(() => {
           active
           :paragraph="{ rows: parseInt(card.height[0]) * 2 }"
         />
+        <div v-if="hasError" class="error-overlay">
+          <div class="error-box">
+            <div class="error-line">{{ errorHost }} 拒绝了我们的连接请求。</div>
+            <div class="error-line">请前往后端运行实例服务</div>
+          </div>
+        </div>
         <iframe
-          v-show="!myIframeLoading"
+          v-show="!myIframeLoading && !hasError"
           ref="myIframe"
           :src="urlSrc"
           :style="{
@@ -118,5 +138,29 @@ onMounted(() => {
   bottom: 0;
   right: 0;
   border-radius: 6px;
+}
+
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 10;
+}
+
+.error-box {
+  text-align: center;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.error-line + .error-line {
+  margin-top: 6px;
 }
 </style>

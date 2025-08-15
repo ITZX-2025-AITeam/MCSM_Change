@@ -4,6 +4,8 @@ export enum LayoutCardHeight {
   MEDIUM = "400px",
   BIG = "600px",
   LARGE = "800px",
+  XLARGE = "1000px",
+  XXLARGE = "1200px",
   AUTO = "unset"
 }
 

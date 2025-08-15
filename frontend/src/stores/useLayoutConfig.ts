@@ -42,24 +42,23 @@ export const useLayoutConfigStore = createGlobalState(() => {
   //   }
   // };
 
-  
-
-  // 新的实例加载功能 可以做到使用L的模式全部进行加载
   const insertLayoutItem = (pageName: string, card: LayoutCard, index?: number) => {
     if (!pageName) pageName = currentRoutePath.value;
-    // 自动初始化
-    let pageConfig = globalLayoutConfig.value.find((item) => item.page === pageName);
-    if (!pageConfig) {
-      pageConfig = { page: pageName, items: [] };
-      globalLayoutConfig.value.push(pageConfig);
+    // 代码重构
+    let pageConfig = globalLayoutConfig.value.find((item) => item.page === pageName)
+    if(!pageConfig){
+      pageConfig = {page:pageName,items:[]}
+      globalLayoutConfig.value.push(pageConfig)
     }
-    const items = pageConfig.items;
-    if (index != null) {
-      items.splice(index, 0, card);
+
+    const items = pageConfig.items
+    if(index != null){
+      items.splice(index,0,card)
     } else {
-      items.push(card);
+      items.push(card)
     }
   };
+
 
 
   const moveCardItem = (pageName: string, sourceId: string, targetId: string) => {
