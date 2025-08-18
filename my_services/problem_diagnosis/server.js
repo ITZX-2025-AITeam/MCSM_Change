@@ -8,7 +8,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 报告目录路径固定为项目根目录下的report
+<<<<<<< HEAD
 const REPORT_DIR = path.join(__dirname, '..', '..', 'report');
+=======
+const REPORT_DIR = path.join(__dirname, 'report');
+>>>>>>> abbfb9586bbcdbc37f3566e49b37d6c932f833d3
 
 // 启动时自动创建报告目录（如不存在）
 if (!fs.existsSync(REPORT_DIR)) {
