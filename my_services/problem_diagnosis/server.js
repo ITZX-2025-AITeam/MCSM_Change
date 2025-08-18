@@ -8,7 +8,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 报告目录路径固定为项目根目录下的report
-const REPORT_DIR = '/root/server/test/MCSM_Change_Start/report';
+const REPORT_DIR = path.join(__dirname, 'report');
+
+// 启动时自动创建报告目录（如不存在）
+if (!fs.existsSync(REPORT_DIR)) {
+    fs.mkdirSync(REPORT_DIR, { recursive: true });
+}
 
 // 内存存储诊断数据（程序重启时清空）
 let diagnosisData = {};

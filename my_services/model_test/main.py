@@ -1195,7 +1195,7 @@ class ModelEvaluator:
     async def _do_copy_report(self, model_name: str, improvement: bool):
         """将预置报告拷贝到目标目录并替换时间戳。"""
         # 静默输出，不向前端输出日志
-        # 读取预编写报告（来源：/root/server/MCSManager/my_services/model_test/reports），输出到 /root/server/MCSManager/report
+        # 读取预编写报告（来源：self.source_reports_dir），输出到 self.report_output_dir
         improvement_flag = 'true' if improvement else 'false'
         source_filename = f"{model_name}_{improvement_flag}.md"
         source_path = os.path.join(self.source_reports_dir, source_filename)
@@ -1432,7 +1432,7 @@ def test_report_generation():
     except Exception as e:
         return jsonify({"status": "error", "message": f"报告生成失败: {str(e)}"})
 
-# 已删除下载报告接口，报告自动保存到 /root/server/MCSManager/report
+# 已删除下载报告接口，报告自动保存到 self.report_output_dir
     
         # self.weights = {
         #     "functionality": 0.35,          # 功能性

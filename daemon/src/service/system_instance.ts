@@ -116,7 +116,7 @@ class InstanceSubsystem extends EventEmitter {
     const instance = new Instance(newUuid, new InstanceConfig());
     // Instance working directory verification and automatic creation
     if (!cfg.cwd || cfg.cwd === ".") {
-      cfg.cwd = path.normalize(`${INSTANCE_DATA_DIR}/${instance.instanceUuid}`);
+      cfg.cwd = path.join("daemon/data/InstanceData", instance.instanceUuid);
     }
     if (!fs.existsSync(cfg.cwd)) fs.mkdirsSync(cfg.cwd);
     // Set the default input and output encoding
