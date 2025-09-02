@@ -83,15 +83,6 @@ const originRouterConfig: RouterConfig[] = [
     }
   },
   {
-    path: "/mixedpage",
-    name: t("快速部署"),
-    component: LayoutContainer,
-    meta: {
-      mainMenu: true,
-      permission: ROLE.ADMIN
-    }
-  },
-  {
     path: "/testpage",
     name: t("模型检测"),
     component: LayoutContainer,
