@@ -1432,23 +1432,12 @@ def test_report_generation():
     except Exception as e:
         return jsonify({"status": "error", "message": f"报告生成失败: {str(e)}"})
 
-# 已删除下载报告接口，报告自动保存到 self.report_output_dir
-    
-        # self.weights = {
-        #     "functionality": 0.35,          # 功能性
-        #     "security": 0.25,               # 安全性
-        #     "performance": 0.20,            # 性能
-        #     "bias": 0.10,                   # 偏见
-        #     "privacy": 0.10                 # 隐私
-        # }
-
 @app.route('/get_test_configs')
 def get_test_configs():
     """获取test_cfg文件夹中的配置文件列表"""
     try:
-        # 使用相对路径，确保项目可移植性
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        config_dir = os.path.join(current_dir, 'test_cfg')
+        # 使用绝对路径
+        config_dir = "/root/server/MCSM_Change/my_services/model_test/test_cfg"
         
         if not os.path.exists(config_dir):
             os.makedirs(config_dir, exist_ok=True)
@@ -1456,7 +1445,7 @@ def get_test_configs():
         
         config_files = []
         for filename in os.listdir(config_dir):
-            if filename.endswith('.json'):  # 只显示JSON配置文件
+            if filename.lower().endswith('.json'):  # 只显示JSON配置文件（大小写不敏感）
                 config_files.append(filename)
         
         # 按文件名排序
