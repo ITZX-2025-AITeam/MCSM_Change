@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模型诊断工具 - GitHub风格</title>
+    <link rel="stylesheet" href="css/all.min.css" />
+    <style>
+      /* 与原样式完全一致，直接复用 */
+      :root {
+        --github-dark-bg: #0d1117;
+        --github-light-bg: #f6f8fa;
+        --github-card-bg: #ffffff;
+        --github-border: #d0d7de;
+        --github-primary: #1f6feb;
+        --github-success: #2ea44f;
+        --github-text: #24292f;
+        --github-subtle: #6e7781;
+        --github-shadow: rgba(140, 149, 159, 0.15);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        background-color: var(--github-light-bg);
+        color: var(--github-text);
+        line-height: 1.5;
+        min-height: 100vh;
+        padding: 0;
+        background: linear-gradient(135deg, #f6f8fa 0%, #e1e7ed 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .container {
+        width: 95%;
+        max-width: 100%;
+        height: 95vh;
+        margin: 0 auto;
+        background-color: var(--github-card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        border: 1px solid var(--github-border);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        background: linear-gradient(120deg, #0d1117 0%, #1f2938 100%);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+        position: relative;
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: -0.3px;
+        position: relative;
+        display: inline-block;
+      }
+      h1:after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--github-success);
+        border-radius: 3px;
+      }
+      .subtitle {
+        color: #8b949e;
+        font-size: 16px;
+        font-weight: 400;
+        margin-top: 15px;
+      }
+      .content {
+        padding: 30px;
+        position: relative;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+      .steps-container {
+        position: relative;
+      }
+      .step {
+        display: none;
+        padding: 25px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--github-border);
+        box-shadow: 0 1px 3px var(--github-shadow);
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+      }
+      .step:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--github-primary);
+      }
+      .step.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--github-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 18px;
+        margin-right: 15px;
+        flex-shrink: 0;
+        box-shadow: 0 3px 6px rgba(31, 111, 235, 0.2);
+      }
+      .step-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--github-text);
+      }
+      .step-content {
+        padding-left: 51px;
+        margin-bottom: 20px;
+      }
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin: 0 -5px;
+      }
+      .option-btn {
+        background-color: var(--github-card-bg);
+        border: 1px solid var(--github-border);
+        border-radius: 6px;
+        padding: 14px 18px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--github-text);
+        text-align: center;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .option-btn:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          120deg,
+          rgba(246, 248, 250, 0.9) 0%,
+          rgba(255, 255, 255, 0.9) 100%
+        );
+        z-index: -1;
+        transition: all 0.3s ease;
+      }
+      .option-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(31, 111, 235, 0.15);
+        border-color: #1f6feb;
+      }
+      .option-btn:hover:before {
+        opacity: 0;
+      }
+      .option-btn.selected {
+        background-color: var(--github-primary);
+        color: white;
+        border-color: var(--github-primary);
+        box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
+      }
+      .option-btn.selected:hover {
+        background-color: #0c5bc9;
+      }
+      .next-btn {
+        background: linear-gradient(120deg, #2ea44f 0%, #22863a 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 14px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 15px;
+        display: none;
+        width: 100%;
+        max-width: 350px;
+        margin: 25px auto 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(46, 164, 79, 0.2);
+      }
+      .next-btn:after {
+        content: none;
+      }
+      .next-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(46, 164, 79, 0.3);
+      }
+      .next-btn:hover:after {
+        transform: rotate(30deg) translate(20%, 20%);
+      }
+      .next-btn:disabled {
+        background: #94d3a2;
+        cursor: not-allowed;
+      }
+      footer {
+        background-color: var(--github-light-bg);
+        text-align: center;
+        color: var(--github-subtle);
+        font-size: 14px;
+        padding: 20px;
+        border-top: 1px solid var(--github-border);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+      .github-icon {
+        color: var(--github-subtle);
+        font-size: 18px;
+      }
+      .status-bar {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #e1e4e8;
+        transition: all 0.3s ease;
+      }
+      .status-dot.active {
+        background-color: var(--github-success);
+        transform: scale(1.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>检查工单(Checklist)</h1>
+        <p class="subtitle">使用清单逐步排查模型性能问题</p>
+      </header>
+      <div class="content">
+        <div class="steps-container">
+          <!-- 步骤 0：选择模型缺点 -->
+          <div class="step active" id="step0">
+            <div class="step-header">
+              <div class="step-number">0</div>
+              <div class="step-title">选择模型缺点</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="传输安全性">
+                  <i class="fas fa-shield-alt" style="margin-right: 8px"></i> 传输安全性
+                </button>
+                <button class="option-btn" value="算法偏见">
+                  <i class="fas fa-balance-scale" style="margin-right: 8px"></i> 算法偏见
+                </button>
+                <button class="option-btn" value="抗扰动能力">
+                  <i class="fas fa-brain" style="margin-right: 8px"></i> 抗扰动能力
+                </button>
+                <button class="option-btn" value="推理速度">
+                  <i class="fas fa-tachometer-alt" style="margin-right: 8px"></i> 推理速度
+                </button>
+                <button class="option-btn" value="检测精度">
+                  <i class="fas fa-bullseye" style="margin-right: 8px"></i> 检测精度
+                </button>
+                <button class="option-btn" value="模型体积">
+                  <i class="fas fa-weight-hanging" style="margin-right: 8px"></i> 模型体积
+                </button>
+              </div>
+              <button class="next-btn" id="next0">
+                <i class="fas fa-play" style="margin-right: 8px"></i> 开始诊断
+              </button>
+            </div>
+          </div>
+          <!-- ========== 传输安全性专属步骤 ========== -->
+          <!-- 步骤 TS1：尝试截获数据包 -->
+          <div class="step" id="stepTS1">
+            <div class="step-header">
+              <div class="step-number">1</div>
+              <div class="step-title">尝试截获数据包</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="截获成功">
+                  <i class="fas fa-check-circle" style="margin-right: 8px"></i>
+                  截获成功，传输存在问题
+                </button>
+                <button class="option-btn" value="截获失败">
+                  <i class="fas fa-times-circle" style="margin-right: 8px"></i> 截获失败，传输安全
+                </button>
+              </div>
+              <button class="next-btn" id="nextTS1">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <!-- 步骤 TS2：尝试破解数据包 -->
+          <div class="step" id="stepTS2">
+            <div class="step-header">
+              <div class="step-number">2</div>
+              <div class="step-title">尝试破解数据包</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="对称加密">
+                  <i class="fas fa-key" style="margin-right: 8px"></i> 对称加密（AES\XOR）
+                </button>
+                <button class="option-btn" value="非对称加密">
+                  <i class="fas fa-lock" style="margin-right: 8px"></i> 非对称加密（RSA）
+                </button>
+              </div>
+              <button class="next-btn" id="nextTS2">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <!-- 步骤 TS3：验证对称加密算法 -->
+          <div class="step" id="stepTS3">
+            <div class="step-header">
+              <div class="step-number">3</div>
+              <div class="step-title">验证对称加密算法</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="AES">
+                  <i class="fas fa-key" style="margin-right: 8px"></i> AES加密
+                </button>
+                <button class="option-btn" value="Base64">
+                  <i class="fas fa-layer-group" style="margin-right: 8px"></i> 双重Base64加密
+                </button>
+                <button class="option-btn" value="XOR">
+                  <i class="fas fa-random" style="margin-right: 8px"></i> XOR加密
+                </button>
+              </div>
+              <button class="next-btn" id="nextTS3">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <!-- 步骤 TS4：是否找到漏洞 -->
+          <div class="step" id="stepTS4">
+            <div class="step-header">
+              <div class="step-number">4</div>
+              <div class="step-title">是否找到漏洞</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="已找到">
+                  <i class="fas fa-check-double" style="margin-right: 8px"></i> 已找到
+                </button>
+                <button class="option-btn" value="未找到">
+                  <i class="fas fa-tools" style="margin-right: 8px"></i> 未找到
+                </button>
+              </div>
+              <button class="next-btn" id="nextTS4">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <!-- 步骤 TS5：可能的步骤 -->
+          <div class="step" id="stepTS5">
+            <div class="step-header">
+              <div class="step-number">5</div>
+              <div class="step-title">后续检查方向</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="检查密钥管理">
+                  <i class="fas fa-key" style="margin-right: 8px"></i> 检查密钥管理
+                </button>
+                <button class="option-btn" value="升级加密协议">
+                  <i class="fas fa-sync-alt" style="margin-right: 8px"></i> 升级加密协议
+                </button>
+                <button class="option-btn" value="审查实现代码">
+                  <i class="fas fa-code" style="margin-right: 8px"></i> 审查实现代码
+                </button>
+              </div>
+              <button class="next-btn" id="nextTS5">
+                <i class="fas fa-check" style="margin-right: 8px"></i> 完成诊断
+              </button>
+            </div>
+          </div>
+          <!-- 其余通用步骤（当选择的不是“传输安全性”时才出现） -->
+          <!-- 步骤 1 -->
+          <div class="step" id="step1">
+            <div class="step-header">
+              <div class="step-number">1</div>
+              <div class="step-title">尝试复现问题，判断实际影响</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="成功">
+                  <i class="fas fa-check-circle" style="margin-right: 8px"></i> 不影响实际使用
+                </button>
+                <button class="option-btn" value="失败">
+                  <i class="fas fa-times-circle" style="margin-right: 8px"></i> 影响实际使用
+                </button>
+              </div>
+              <button class="next-btn" id="next1">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <!-- 步骤 2~6 省略，与原文件相同 -->
+          <div class="step" id="step2">
+            <div class="step-header">
+              <div class="step-number">2</div>
+              <div class="step-title">检查模型的训练轮次</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="训练轮次足够，模型学习充分">
+                  <i class="fas fa-chart-line" style="margin-right: 8px"></i>
+                  训练轮次足够
+                </button>
+                <button class="option-btn" value="训练轮次不足，模型学习不充分">
+                  <i class="fas fa-exclamation-triangle" style="margin-right: 8px"></i>
+                  训练轮次不足
+                </button>
+              </div>
+              <button class="next-btn" id="next2">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <div class="step" id="step3">
+            <div class="step-header">
+              <div class="step-number">3</div>
+              <div class="step-title">查看测试集F1Score</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="得分高">
+                  <i class="fas fa-arrow-up" style="margin-right: 8px"></i> 得分高
+                </button>
+                <button class="option-btn" value="得分低">
+                  <i class="fas fa-arrow-down" style="margin-right: 8px"></i> 得分低
+                </button>
+              </div>
+              <button class="next-btn" id="next3">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <div class="step" id="step4">
+            <div class="step-header">
+              <div class="step-number">4</div>
+              <div class="step-title">查看训练集F1Score</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="得分高">
+                  <i class="fas fa-arrow-up" style="margin-right: 8px"></i> 得分高
+                </button>
+                <button class="option-btn" value="得分低">
+                  <i class="fas fa-arrow-down" style="margin-right: 8px"></i> 得分低
+                </button>
+              </div>
+              <button class="next-btn" id="next4">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <div class="step" id="step5">
+            <div class="step-header">
+              <div class="step-number">5</div>
+              <div class="step-title">是否找到漏洞</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="特征工程完善">
+                  <i class="fas fa-check-double" style="margin-right: 8px"></i> 已找到
+                </button>
+                <button class="option-btn" value="特征需要优化">
+                  <i class="fas fa-tools" style="margin-right: 8px"></i> 需要排查其他功能
+                </button>
+              </div>
+              <button class="next-btn" id="next5">
+                <i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步
+              </button>
+            </div>
+          </div>
+          <div class="step" id="step6">
+            <div class="step-header">
+              <div class="step-number">6</div>
+              <div class="step-title">验证超参数设置</div>
+            </div>
+            <div class="step-content">
+              <div class="options">
+                <button class="option-btn" value="超参数合适">
+                  <i class="fas fa-sliders-h" style="margin-right: 8px"></i> 超参数合适
+                </button>
+                <button class="option-btn" value="需要调整超参数">
+                  <i class="fas fa-cog" style="margin-right: 8px"></i> 需要调整超参数
+                </button>
+              </div>
+              <button class="next-btn" id="next6">
+                <i class="fas fa-check" style="margin-right: 8px"></i> 完成诊断
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <i class="fab fa-github github-icon"></i>
+        <p>检查工单(Checklist) v3.5</p>
+      </footer>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let currentStep = 0;
+        const totalSteps = 7; // 0-6 步（通用流程）
+        const steps = document.querySelectorAll(".step");
+        /* 记录用户最初选择的缺点 */
+        let selectedIssue = "";
+        /* ---------- 通用步骤切换函数 ---------- */
+        function showStep(stepId) {
+          steps.forEach((s) => s.classList.remove("active"));
+          document.getElementById(stepId).classList.add("active");
+        }
+        /* ---------- 步骤 0：开始诊断 ---------- */
+        const step0Options = document.querySelectorAll("#step0 .option-btn");
+        step0Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            step0Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+            selectedIssue = this.value;
+          });
+        });
+        document.getElementById("next0").addEventListener("click", () => {
+          if (selectedIssue === "传输安全性") {
+            showStep("stepTS1"); // 进入“传输安全性”专属流程
+          } else {
+            showStep("step1"); // 进入通用流程
+          }
+        });
+        /* ---------- 传输安全性专属流程 ---------- */
+        const ts1Options = document.querySelectorAll("#stepTS1 .option-btn");
+        ts1Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            ts1Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+          });
+        });
+        document.getElementById("nextTS1").addEventListener("click", () => {
+          showStep("stepTS2");
+        });
+
+        const ts2Options = document.querySelectorAll("#stepTS2 .option-btn");
+        ts2Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            ts2Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+          });
+        });
+        document.getElementById("nextTS2").addEventListener("click", () => {
+          showStep("stepTS3");
+        });
+
+        const ts3Options = document.querySelectorAll("#stepTS3 .option-btn");
+        ts3Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            ts3Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+          });
+        });
+        document.getElementById("nextTS3").addEventListener("click", () => {
+          showStep("stepTS4");
+        });
+
+        const ts4Options = document.querySelectorAll("#stepTS4 .option-btn");
+        ts4Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            ts4Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+            // 如果选择“已找到”，则下一步直接完成诊断
+            if (this.value === "已找到") {
+              document.getElementById("nextTS4").textContent = "完成诊断";
+              document.getElementById("nextTS4").innerHTML =
+                '<i class="fas fa-check" style="margin-right: 8px"></i> 完成诊断';
+            } else {
+              document.getElementById("nextTS4").textContent = "下一步";
+              document.getElementById("nextTS4").innerHTML =
+                '<i class="fas fa-arrow-right" style="margin-right: 8px"></i> 下一步';
+            }
+          });
+        });
+        document.getElementById("nextTS4").addEventListener("click", function () {
+          const selectedValue = document.querySelector("#stepTS4 .option-btn.selected")?.value;
+          if (selectedValue === "已找到") {
+            alert("诊断结束！");
+          } else {
+            showStep("stepTS5");
+          }
+        });
+
+        const ts5Options = document.querySelectorAll("#stepTS5 .option-btn");
+        ts5Options.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            ts5Options.forEach((b) => b.classList.remove("selected"));
+            this.classList.add("selected");
+          });
+        });
+        document.getElementById("nextTS5").addEventListener("click", () => {
+          alert("诊断结束！");
+        });
+        /* ---------- 通用流程（非“传输安全性”时） ---------- */
+        /* 其余按钮逻辑与原文件保持一致 */
+        const optionButtons = document.querySelectorAll(".option-btn");
+        optionButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const parent = this.parentNode;
+            const siblings = parent.querySelectorAll(".option-btn");
+            siblings.forEach((btn) => btn.classList.remove("selected"));
+            this.classList.add("selected");
+            setTimeout(() => {
+              const currentActiveStep = document.querySelector(".step.active");
+              const nextBtn = currentActiveStep.querySelector(".next-btn");
+              if (nextBtn) nextBtn.click();
+            }, 300);
+          });
+        });
+        for (let i = 1; i <= 6; i++) {
+          const nextBtn = document.getElementById(`next${i}`);
+          if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+              if (i === 6) {
+                alert("诊断结束！");
+              } else {
+                showStep(`step${i + 1}`);
+              }
+            });
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

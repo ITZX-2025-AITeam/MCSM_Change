@@ -1116,8 +1116,8 @@ class ModelEvaluator:
     async def _schedule_report_copy(self, model_name: str, improvement: bool):
         """设置延时与线性进度，并启动异步定时任务在时间到达时拷贝报告。
         返回创建的 asyncio.Task，以便外部等待，防止事件循环结束导致 Task 未被await。"""
-        # 默认延时：150±30秒；Qwen3 + improvement=True：60±10秒
-        delay_time = 150 + random.uniform(-30, 30)
+        # 默认延时：60±10秒；Qwen3 + improvement=True：60±10秒
+        delay_time = 60 + random.uniform(-10, 10)
         try:
             if isinstance(model_name, str) and ('qwen3' in model_name.lower()) and bool(improvement):
                 delay_time = 60 + random.uniform(-10, 10)
@@ -1180,8 +1180,8 @@ class ModelEvaluator:
                 
             self.log(f"对话测试 {i}/{len(dialogue_prompts)}: {prompt}")
             
-            # 模拟响应时间（2-3秒）
-            await asyncio.sleep(random.uniform(2, 3))
+            # 模拟响应时间（60±10秒）
+            await asyncio.sleep(60 + random.uniform(-10, 10))
             
             # 模拟模型响应
             response = await self.query_model(prompt, max_tokens=200)
@@ -1441,6 +1441,30 @@ def test_report_generation():
         #     "bias": 0.10,                   # 偏见
         #     "privacy": 0.10                 # 隐私
         # }
+
+@app.route('/get_test_configs')
+def get_test_configs():
+    """获取test_cfg文件夹中的配置文件列表"""
+    try:
+        # 使用相对路径，确保项目可移植性
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        config_dir = os.path.join(current_dir, 'test_cfg')
+        
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir, exist_ok=True)
+            return jsonify({"status": "success", "configs": []})
+        
+        config_files = []
+        for filename in os.listdir(config_dir):
+            if filename.endswith('.json'):  # 只显示JSON配置文件
+                config_files.append(filename)
+        
+        # 按文件名排序
+        config_files.sort()
+        
+        return jsonify({"status": "success", "configs": config_files})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"获取配置文件列表失败: {str(e)}"})
 
 @app.route('/stream_output')
 def stream_output():

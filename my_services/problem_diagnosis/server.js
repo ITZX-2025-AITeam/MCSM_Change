@@ -8,15 +8,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 报告目录路径固定为项目根目录下的report
-<<<<<<< HEAD
 const REPORT_DIR = path.join(__dirname, '..', '..', 'report');
-=======
-const REPORT_DIR = path.join(__dirname, 'report');
->>>>>>> abbfb9586bbcdbc37f3566e49b37d6c932f833d3
+
+// 检查文件目录路径固定为项目根目录下的check_files
+const CHECK_DIR = path.join(__dirname, 'check_files');
 
 // 启动时自动创建报告目录（如不存在）
 if (!fs.existsSync(REPORT_DIR)) {
     fs.mkdirSync(REPORT_DIR, { recursive: true });
+}
+
+// 启动时自动创建检查文件目录（如不存在）
+if (!fs.existsSync(CHECK_DIR)) {
+    fs.mkdirSync(CHECK_DIR, { recursive: true });
 }
 
 // 内存存储诊断数据（程序重启时清空）
@@ -66,6 +70,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- 新增代码：让 /reports 和 /checks URL路径直接映射到对应的文件夹 ---
+app.use('/reports', express.static(REPORT_DIR));
+app.use('/checks', express.static(CHECK_DIR));
+// --- 新增代码结束 ---
+
+
 // Server-Sent Events 端点
 app.get('/api/events', (req, res) => {
     // 重要：禁用反向代理/中间层缓冲，确保实时推送
@@ -110,6 +120,33 @@ app.get('/api/notifications', (req, res) => {
     res.json(notifications);
 });
 
+// 删除通知
+app.delete('/api/notifications/:id', (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const initialLength = notifications.length;
+        notifications = notifications.filter(n => n.id !== id);
+        
+        if (notifications.length < initialLength) {
+            // 通知其他客户端删除此通知
+            const eventData = JSON.stringify({
+                type: 'notification_deleted',
+                id: id
+            });
+            connectedClients.forEach(client => {
+                client.res.write(`data: ${eventData}\n\n`);
+            });
+            
+            res.json({ success: true, message: 'Notification deleted' });
+        } else {
+            res.status(404).json({ error: 'Notification not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        res.status(500).json({ error: 'Failed to delete notification' });
+    }
+});
+
 // 通知其他客户端（也写入记录）
 app.post('/api/notify', (req, res) => {
     try {
@@ -145,6 +182,24 @@ app.get('/api/reports', (req, res) => {
     }
 });
 
+// 获取所有检查文件列表
+app.get('/api/checks', (req, res) => {
+    try {
+        const files = fs.readdirSync(CHECK_DIR);
+        const checks = files
+            .filter(file => file.endsWith('.md') || file.endsWith('.html'))
+            .map(file => ({
+                filename: file,
+                name: path.parse(file).name,
+                type: path.extname(file).substring(1)
+            }));
+        res.json(checks);
+    } catch (error) {
+        console.error('Error reading checks directory:', error);
+        res.status(500).json({ error: 'Failed to read checks directory' });
+    }
+});
+
 // 监视报告目录变化并通知前端更新
 try {
     if (fs.existsSync(REPORT_DIR)) {
@@ -167,7 +222,32 @@ try {
     console.warn('[report-watch] failed to setup fs.watch:', e && e.message);
 }
 
-// 获取特定报告内容
+// 监视检查文件目录变化并通知前端更新
+try {
+    if (fs.existsSync(CHECK_DIR)) {
+        // 使用fs.watch对目录变更进行监听
+        const watcher = fs.watch(CHECK_DIR, { persistent: true }, (eventType, filename) => {
+            if (!filename) return;
+            // 仅对新建/删除/重命名触发，且是支持的后缀
+            const ext = path.extname(filename).toLowerCase();
+            if (ext !== '.md' && ext !== '.html') return;
+            // 广播列表变更事件
+            broadcastEvent({ type: 'checks_changed', filename, eventType, timestamp: Date.now() });
+        });
+        // 在进程退出时关闭watcher（尽力而为）
+        process.on('exit', () => watcher.close());
+        process.on('SIGINT', () => { try { watcher.close(); } catch (e) {} process.exit(0); });
+    } else {
+        console.warn(`[check-watch] CHECK_DIR not found: ${CHECK_DIR}`);
+    }
+} catch (e) {
+    console.warn('[check-watch] failed to setup fs.watch:', e && e.message);
+}
+
+// 注意：/api/reports/:filename 和 /api/checks/:filename 这两个端点现在主要用于处理 .md 文件转换
+// 对于 .html 文件，前端将直接通过静态服务加载，不再调用这两个API
+
+// 获取特定报告内容（主要用于 Markdown 转换）
 app.get('/api/reports/:filename', (req, res) => {
     try {
         const filename = req.params.filename;
@@ -175,6 +255,40 @@ app.get('/api/reports/:filename', (req, res) => {
         
         if (!fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Report not found' });
+        }
+
+        const content = fs.readFileSync(filePath, 'utf8');
+        const fileType = path.extname(filename).substring(1);
+        
+        let htmlContent;
+        if (fileType === 'md') {
+            htmlContent = marked(content);
+        } else if (fileType === 'html') {
+            // 理论上前端不再为此调用API，但作为兼容保留
+            htmlContent = content;
+        } else {
+            return res.status(400).json({ error: 'Unsupported file type' });
+        }
+
+        res.json({
+            filename,
+            content: htmlContent,
+            type: fileType
+        });
+    } catch (error) {
+        console.error('Error reading report:', error);
+        res.status(500).json({ error: 'Failed to read report' });
+    }
+});
+
+// 获取特定检查文件内容（主要用于 Markdown 转换）
+app.get('/api/checks/:filename', (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const filePath = path.join(CHECK_DIR, filename);
+        
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Check file not found' });
         }
 
         const content = fs.readFileSync(filePath, 'utf8');
@@ -195,8 +309,8 @@ app.get('/api/reports/:filename', (req, res) => {
             type: fileType
         });
     } catch (error) {
-        console.error('Error reading report:', error);
-        res.status(500).json({ error: 'Failed to read report' });
+        console.error('Error reading check file:', error);
+        res.status(500).json({ error: 'Failed to read check file' });
     }
 });
 
@@ -255,7 +369,7 @@ app.get('/', (req, res) => {
 // 启动服务器
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`诊断系统服务器运行在:`);
-    console.log(`  - 网络访问: http://192.168.1.100:${PORT}`);
+    console.log(`  - 网络访问: http://<你的局域网IP>:${PORT}`);
     console.log(`  - 本地访问: http://localhost:${PORT}`);
 });
 

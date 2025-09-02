@@ -1,10 +1,65 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <!-- 添加 DOCTYPE -->
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>模型报告诊断系统</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* --- 内联样式修改：解决嵌入内容显示和交互问题 --- */
+        /* 移除 main.content 的 overflow: hidden，
+           允许其内容（包括诊断表单和检查列表）根据需要扩展和滚动 */
+        .content {
+            overflow: visible; /* 或者 hidden -> auto/visible */
+        }
+
+        /* 修改 .report-content-wrapper 的高度计算，
+           使用 flex-grow 让它占据 .report-container 剩余的可用空间，
+           而不是固定的高度。这需要其父容器 .report-container 是 flex 容器。 */
+        .report-container {
+             /* 确保 report-container 是 flex 容器来正确分配空间 */
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* 占据 main.content 的可用高度 */
+        }
+        .report-header {
+            /* flex-shrink: 0; 如果头部高度固定，可以考虑添加 */
+        }
+        .report-content-wrapper {
+            flex: 1; /* 占据剩余空间 */
+            /* 移除固定高度 height: calc(100vh - 200px); */
+            display: flex; /* 使其子元素 (report-content, compare-wrapper) 也能正确布局 */
+            flex-direction: column;
+            /* 可以根据需要调整内部滚动行为 */
+            /* overflow: hidden; */ /* 通常由子元素控制滚动 */
+        }
+
+        /* 确保报告内容区域能够在其容器内滚动 */
+        .report-content {
+            flex: 1; /* 在 report-content-wrapper 内占据可用空间 */
+            /* overflow-y: auto; 保留，但作用域在其新的 flex 容器内 */
+             /* --- 关键修改：确保嵌入的 checklist 能填满这个区域 --- */
+            display: flex; /* 使嵌入的 checklist (一个 block) 也能填满 */
+            flex-direction: column; /* 如果 checklist 内部也是 flex column */
+        }
+
+        /* 确保对比模式容器也能正确填充 */
+        .compare-wrapper {
+            flex: 1; /* 在 report-content-wrapper 内占据可用空间 */
+            /* display: none; 默认隐藏 */
+        }
+        .compare-pane {
+            flex: 1; /* 在 compare-wrapper 内平分空间 */
+            display: flex;
+            flex-direction: column;
+        }
+        .pane-content {
+            flex: 1; /* 在 compare-pane 内占据可用空间 */
+            overflow-y: auto; /* 内部滚动 */
+        }
+
+        /* --- 内联样式修改结束 --- */
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,18 +79,49 @@
                 <p class="header-subtitle">Professional Medical Report Diagnosis System</p>
             </div>
         </header>
-
         <div class="main-content">
             <!-- 左侧报告列表 -->
             <aside class="sidebar">
-                <div class="sidebar-header">
-                    <h2>报告列表</h2>
-                    <span class="report-count" id="reportCount">0 个报告</span>
+                <!-- 侧边栏切换按钮 -->
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" id="reportTabBtn" data-tab="report">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14,2 14,8 20,8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10,9 9,9 8,9"></polyline>
+                        </svg>
+                        报告列表
+                    </button>
+                    <button class="tab-btn" id="checkTabBtn" data-tab="check">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        检查列表
+                    </button>
                 </div>
-                <div class="report-list" id="reportList">
-                    <div class="loading">加载中...</div>
+                <!-- 报告列表面板 -->
+                <div class="sidebar-panel active" id="reportPanel">
+                    <div class="sidebar-header">
+                        <h2>报告列表</h2>
+                        <span class="report-count" id="reportCount">0 个报告</span>
+                    </div>
+                    <div class="report-list" id="reportList">
+                        <div class="loading">加载中...</div>
+                    </div>
                 </div>
-
+                <!-- 检查列表面板 -->
+                <div class="sidebar-panel" id="checkPanel">
+                    <div class="sidebar-header">
+                        <h2>检查列表</h2>
+                        <span class="check-count" id="checkCount">0 个检查项</span>
+                    </div>
+                    <div class="check-list" id="checkList">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
                 <!-- 信息通知栏 -->
                 <div class="notification-panel" id="notificationPanel">
                     <div class="notification-header">信息通知 <span class="badge" id="notificationCount">0</span></div>
@@ -44,9 +130,8 @@
                     </div>
                 </div>
             </aside>
-
             <!-- 主要内容区域 -->
-            <main class="content">
+            <main class="content"> <!-- .content 的 overflow 已在 style 中修改 -->
                 <!-- 折叠侧栏后用于恢复的悬浮按钮 -->
                 <button class="focus-floating-btn hidden" id="focusRestoreBtn" title="恢复侧栏">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -55,7 +140,7 @@
                     恢复
                 </button>
                 <!-- 报告内容显示区域 -->
-                <div class="report-container">
+                <div class="report-container"> <!-- .report-container 的 display:flex 已在 style 中添加 -->
                     <div class="report-header">
                         <h2 id="reportTitle">请选择报告</h2>
                         <div class="report-actions">
@@ -97,8 +182,8 @@
                             </button>
                         </div>
                     </div>
-                    <div class="report-content-wrapper">
-                        <div class="report-content markdown-body" id="reportContent">
+                    <div class="report-content-wrapper"> <!-- 高度和 display 已在 style 中修改 -->
+                        <div class="report-content markdown-body" id="reportContent"> <!-- display:flex 已在 style 中添加 -->
                             <div class="empty-state">
                                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -111,9 +196,8 @@
                                 <p>请从左侧列表中选择一个报告开始诊断工作</p>
                             </div>
                         </div>
-
                         <!-- 对比模式容器（默认隐藏） -->
-                        <div class="compare-wrapper hidden" id="compareWrapper">
+                        <div class="compare-wrapper hidden" id="compareWrapper"> <!-- display:flex 已在 style 中添加到父容器 -->
                             <div class="compare-pane" id="leftPane">
                                 <div class="pane-header">左侧报告</div>
                                 <div class="pane-content markdown-body" id="leftPaneContent"></div>
@@ -125,14 +209,12 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- 诊断表单区域（默认隐藏） -->
                 <div class="diagnosis-container" id="diagnosisContainer" style="display: none;">
                     <div class="diagnosis-header">
                         <h3>诊断信息</h3>
                         <div class="save-status" id="saveStatus"></div>
                     </div>
-                    
                     <form class="diagnosis-form" id="diagnosisForm">
                         <div class="form-group" id="groupModelDiagnosis">
                             <div class="form-group-header">
@@ -162,7 +244,6 @@
                                 placeholder="请输入AI模型的诊断意见..."
                             ></textarea>
                         </div>
-
                         <div class="form-group" id="groupRepairSuggestion">
                             <div class="form-group-header">
                                 <label for="repairSuggestion">建议修复方式</label>
@@ -191,7 +272,6 @@
                                 placeholder="请输入建议的修复方式..."
                             ></textarea>
                         </div>
-
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" id="clearBtn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -203,7 +283,6 @@
                         </div>
                     </form>
                 </div>
-
                 <!-- 开始诊断按钮容器，选择报告后显示 -->
                 <div class="show-diagnosis-btn-container" id="showDiagnosisBtnContainer" style="display: none;">
                     <button class="btn btn-primary" id="showDiagnosisBtn">
@@ -220,7 +299,6 @@
             </main>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>

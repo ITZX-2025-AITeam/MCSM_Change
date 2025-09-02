@@ -50,6 +50,7 @@ export default defineConfig({
     }
   },
   server: {
+    allowedHosts: ["www.isoftstone.com"],
     proxy: {
       "/api": {
         target: "http://localhost:23333",

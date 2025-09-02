@@ -2595,6 +2595,7 @@
   "TXT_CODE_component_title": "标题组件",
   "TXT_CODE_component_text": "文本框组件",
   "TXT_CODE_component_image": "图片组件",
-  "TXT_CODE_component_button": "按钮组件"
+  "TXT_CODE_component_button": "按钮组件",
+  "TXT_CODE_quick_deploy_system": "快速部署系统"
 
 }

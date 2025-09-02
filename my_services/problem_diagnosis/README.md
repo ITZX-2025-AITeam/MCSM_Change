@@ -1,13 +1,13 @@
 # 模型报告诊断系统
 
-一个类似于模型报告诊断的Web系统，提供报告查看和诊断意见录入功能。
+一个类似于模型报告诊断的 Web 系统，提供报告查看和诊断意见录入功能。
 
 ## 功能特性
 
-- 📄 **报告查看**: 支持Markdown和HTML格式的报告文件
+- 📄 **报告查看**: 支持 Markdown 和 HTML 格式的报告文件
 - 📝 **诊断录入**: 可填写模型诊断意见和建议修复方式
 - 💾 **数据持久化**: 页面关闭后数据保留，程序重启后清空
-- 🎨 **GitHub风格**: 采用GitHub风格的UI设计
+- 🎨 **GitHub 风格**: 采用 GitHub 风格的 UI 设计
 - 📱 **响应式设计**: 支持移动端和桌面端访问
 
 ## 目录结构
@@ -34,11 +34,13 @@ problem_diagnosis/
 ### 安装步骤
 
 1. 进入项目目录：
+
    ```bash
    cd /root/server/MCSManager/my_services/problem_diagnosis
    ```
 
 2. 安装依赖：
+
    ```bash
    npm install
    ```
@@ -51,16 +53,19 @@ problem_diagnosis/
 ### 启动系统
 
 #### 方法一：使用启动脚本
+
 ```bash
 ./start.sh
 ```
 
 #### 方法二：直接启动
+
 ```bash
 npm start
 ```
 
 #### 方法三：开发模式
+
 ```bash
 npm run dev
 ```
@@ -68,6 +73,7 @@ npm run dev
 ### 访问系统
 
 启动成功后，在浏览器中访问：
+
 ```
 http://localhost:3000
 ```
@@ -85,29 +91,33 @@ http://localhost:3000
 
 系统支持以下格式的报告文件：
 
-- **Markdown文件** (`.md`): 支持标准Markdown语法
-- **HTML文件** (`.html`): 支持标准HTML格式
+- **Markdown 文件** (`.md`): 支持标准 Markdown 语法
+- **HTML 文件** (`.html`): 支持标准 HTML 格式
 
 报告文件应放置在 `/root/server/MCSManager/report` 目录下。
 
-## API接口
+## API 接口
 
 ### 获取报告列表
+
 ```
 GET /api/reports
 ```
 
 ### 获取报告内容
+
 ```
 GET /api/reports/:filename
 ```
 
 ### 获取诊断数据
+
 ```
 GET /api/diagnosis/:filename
 ```
 
 ### 保存诊断数据
+
 ```
 POST /api/diagnosis/:filename
 Body: {
@@ -119,9 +129,9 @@ Body: {
 ## 技术栈
 
 - **后端**: Node.js + Express.js
-- **前端**: 原生HTML/CSS/JavaScript
-- **样式**: GitHub风格CSS
-- **Markdown渲染**: marked.js
+- **前端**: 原生 HTML/CSS/JavaScript
+- **样式**: GitHub 风格 CSS
+- **Markdown 渲染**: marked.js
 
 ## 数据存储
 
@@ -134,9 +144,9 @@ Body: {
 
 ### 项目结构说明
 
-- `server.js`: Express服务器，处理API请求和静态文件服务
+- `server.js`: Express 服务器，处理 API 请求和静态文件服务
 - `public/index.html`: 主页面结构
-- `public/styles.css`: GitHub风格的CSS样式
+- `public/styles.css`: GitHub 风格的 CSS 样式
 - `public/script.js`: 前端交互逻辑
 
 ### 自定义配置
@@ -146,7 +156,7 @@ Body: {
 ```javascript
 // server.js 中的配置
 const PORT = process.env.PORT || 3000;
-const REPORT_DIR = '/root/server/MCSManager/report';
+const REPORT_DIR = "/root/server/MCSManager/report";
 ```
 
 ## 故障排除
@@ -154,14 +164,17 @@ const REPORT_DIR = '/root/server/MCSManager/report';
 ### 常见问题
 
 1. **端口被占用**
+
    - 修改 `server.js` 中的 `PORT` 变量
    - 或设置环境变量：`PORT=3001 npm start`
 
 2. **报告目录不存在**
+
    - 确保 `/root/server/MCSManager/report` 目录存在
    - 在该目录下放置 `.md` 或 `.html` 文件
 
 3. **依赖安装失败**
+
    - 检查网络连接
    - 尝试使用淘宝镜像：`npm install --registry=https://registry.npm.taobao.org`
 

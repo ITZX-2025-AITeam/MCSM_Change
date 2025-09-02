@@ -72,7 +72,28 @@ function getDefaultFrontendLayoutConfig(): IPageLayoutConfig[] {
       }
     },
     {
+      page: "/mixedpage",
+      items: [
+        {
+          id: getRandomId(),
+          type: "IframeCard",
+          title: t("TXT_CODE_quick_deploy_system"),
+          meta: {
+            url: "http://192.168.1.100:5201",
+            full: true
+          },
+          width: 12,
+          description: t("TXT_CODE_quick_deploy_system"),
+          height: LayoutCardHeight.XXLARGE
+        }
+      ]
+    },
+    {
       page: "/testpage",
+      items: []
+    },
+    {
+      page: "/controlpage",
       items: []
     },
     {
