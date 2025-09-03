@@ -74,6 +74,12 @@ body {
     grid-template-columns: 0 1fr;
 }
 
+/* 专注模式下调整固定元素位置 */
+.focus-mode .show-diagnosis-btn-container,
+.focus-mode .diagnosis-container {
+    left: 0; /* 侧边栏隐藏时从左边缘开始 */
+}
+
 /* 左侧边栏 */
 .sidebar {
     width: 300px;
@@ -264,6 +270,7 @@ body {
 .content {
     flex: 1;
     padding: 0;
+    padding-bottom: 120px; /* 为固定的诊断按钮/表单留出空间 */
     overflow-y: auto;
     /* 全屏模式：充分利用空间 */
     width: 100%;
@@ -502,8 +509,12 @@ body {
     font-size: 14px;
 }
 
-/* 诊断容器 */
+/* 诊断容器 - 固定到底部 */
 .diagnosis-container {
+    position: fixed;
+    bottom: 0;
+    left: 300px; /* 侧边栏宽度 */
+    right: 0;
     background-color: #ffffff;
     border: 1px solid #d1d9e0;
     border-radius: 0;
@@ -512,6 +523,11 @@ body {
     border-left: none;
     border-right: none;
     border-bottom: none;
+    z-index: 1000;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 60vh;
+    overflow-y: auto;
+    transition: left 0.25s ease;
 }
 
 .diagnosis-header {
@@ -623,12 +639,19 @@ body {
     margin-top: 24px;
 }
 
-/* 显示诊断按钮容器 */
+/* 显示诊断按钮容器 - 固定到底部 */
 .show-diagnosis-btn-container {
+    position: fixed;
+    bottom: 0;
+    left: 300px; /* 侧边栏宽度 */
+    right: 0;
     padding: 24px;
     text-align: center;
     background-color: #f6f8fa;
     border-top: 1px solid #d1d9e0;
+    z-index: 1000;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    transition: left 0.25s ease;
 }
 
 /* 保存成功动画 */
@@ -738,6 +761,7 @@ body {
     
     .content {
         padding: 16px;
+        padding-bottom: 120px; /* 保持底部空间 */
         height: auto;
     }
     
@@ -751,6 +775,13 @@ body {
     
     .btn {
         justify-content: center;
+    }
+    
+    /* 移动设备上固定元素调整 */
+    .show-diagnosis-btn-container,
+    .diagnosis-container {
+        left: 0 !important;
+        right: 0;
     }
 }
 

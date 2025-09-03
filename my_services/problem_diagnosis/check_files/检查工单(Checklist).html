@@ -277,6 +277,206 @@
         background-color: var(--github-success);
         transform: scale(1.2);
       }
+      
+      /* 诊断完成页面样式 */
+      .completion-container {
+        text-align: center;
+        padding: 20px 15px;
+        max-width: 100%;
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      .completion-header {
+        flex-shrink: 0;
+      }
+      
+      .completion-icon {
+        font-size: 50px;
+        color: var(--github-success);
+        margin-bottom: 15px;
+        animation: bounceIn 0.8s ease;
+      }
+      
+      @keyframes bounceIn {
+        0% {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        70% {
+          transform: scale(0.9);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      
+      .completion-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--github-text);
+        margin-bottom: 10px;
+        animation: slideInUp 0.6s ease 0.2s both;
+      }
+      
+      .completion-message {
+        font-size: 14px;
+        color: var(--github-subtle);
+        margin-bottom: 20px;
+        animation: slideInUp 0.6s ease 0.4s both;
+        line-height: 1.4;
+      }
+      
+      @keyframes slideInUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      
+      .completion-summary {
+        background: var(--github-light-bg);
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid var(--github-border);
+        animation: slideInUp 0.6s ease 0.6s both;
+        flex-shrink: 0;
+      }
+      
+      .completion-summary h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--github-text);
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      
+      .summary-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(208, 215, 222, 0.5);
+        font-size: 14px;
+      }
+      
+      .summary-item:last-child {
+        border-bottom: none;
+      }
+      
+      .summary-label {
+        font-weight: 500;
+        color: var(--github-subtle);
+        flex-shrink: 0;
+      }
+      
+      .summary-value {
+        font-weight: 600;
+        color: var(--github-text);
+        background: white;
+        padding: 4px 8px;
+        border-radius: 3px;
+        border: 1px solid var(--github-border);
+        font-size: 12px;
+        margin-left: 10px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      
+      .completion-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        animation: slideInUp 0.6s ease 0.8s both;
+        flex-shrink: 0;
+        margin-top: auto;
+      }
+      
+      .action-btn {
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .action-btn.primary {
+        background: linear-gradient(120deg, var(--github-success) 0%, #22863a 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(46, 164, 79, 0.2);
+      }
+      
+      .action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(46, 164, 79, 0.3);
+      }
+      
+      .action-btn.secondary {
+        background: white;
+        color: var(--github-text);
+        border: 1px solid var(--github-border);
+        box-shadow: 0 2px 6px var(--github-shadow);
+      }
+      
+      .action-btn.secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(140, 149, 159, 0.2);
+        border-color: var(--github-primary);
+      }
+      
+      /* 进一步适配极窄屏幕 */
+      @media (max-width: 320px) {
+        .completion-icon {
+          font-size: 40px;
+          margin-bottom: 10px;
+        }
+        
+        .completion-title {
+          font-size: 20px;
+        }
+        
+        .completion-message {
+          font-size: 12px;
+        }
+        
+        .summary-item {
+          flex-direction: column;
+          gap: 5px;
+          text-align: center;
+          padding: 6px 0;
+        }
+        
+        .summary-value {
+          margin-left: 0;
+          margin-top: 3px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -546,6 +746,48 @@
               </button>
             </div>
           </div>
+          
+          <!-- 诊断完成页面 -->
+          <div class="step" id="completion-step">
+            <div class="completion-container">
+              <div class="completion-header">
+                <div class="completion-icon">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="completion-title">诊断完成</h2>
+                <p class="completion-message">恭喜！您已完成模型性能问题的诊断流程</p>
+              </div>
+              
+              <div class="completion-summary">
+                <h3>诊断总结</h3>
+                <div class="summary-content">
+                  <div class="summary-item">
+                    <span class="summary-label">问题类型：</span>
+                    <span class="summary-value" id="summary-issue"></span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">完成步骤：</span>
+                    <span class="summary-value" id="summary-steps"></span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">用时：</span>
+                    <span class="summary-value" id="summary-time"></span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="completion-actions">
+                <button class="action-btn primary" onclick="startNewDiagnosis()">
+                  <i class="fas fa-redo" style="margin-right: 6px;"></i>
+                  重新诊断
+                </button>
+                <button class="action-btn secondary" onclick="viewSummary()">
+                  <i class="fas fa-file-alt" style="margin-right: 6px;"></i>
+                  查看详细报告
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <footer>
@@ -560,11 +802,341 @@
         const steps = document.querySelectorAll(".step");
         /* 记录用户最初选择的缺点 */
         let selectedIssue = "";
+        
+        // 本地存储键名
+        const STORAGE_KEYS = {
+          currentStep: 'diagnosis_current_step',
+          selectedIssue: 'diagnosis_selected_issue',
+          stepSelections: 'diagnosis_step_selections'
+        };
+        
+        // 保存当前状态到本地存储
+        function saveState() {
+          const state = {
+            currentStep: getCurrentActiveStepId(),
+            selectedIssue: selectedIssue,
+            stepSelections: getStepSelections()
+          };
+          localStorage.setItem(STORAGE_KEYS.currentStep, state.currentStep);
+          localStorage.setItem(STORAGE_KEYS.selectedIssue, state.selectedIssue);
+          localStorage.setItem(STORAGE_KEYS.stepSelections, JSON.stringify(state.stepSelections));
+          localStorage.setItem('diagnosis_start_time', diagnosisStartTime.toString());
+        }
+        
+        // 获取当前活跃步骤的ID
+        function getCurrentActiveStepId() {
+          const activeStep = document.querySelector('.step.active');
+          return activeStep ? activeStep.id : 'step0';
+        }
+        
+        // 获取所有步骤的选择状态
+        function getStepSelections() {
+          const selections = {};
+          steps.forEach(step => {
+            const selectedBtn = step.querySelector('.option-btn.selected');
+            if (selectedBtn) {
+              selections[step.id] = selectedBtn.value;
+            }
+          });
+          return selections;
+        }
+        
+        // 从本地存储恢复状态
+        function restoreState() {
+          const savedCurrentStep = localStorage.getItem(STORAGE_KEYS.currentStep);
+          const savedSelectedIssue = localStorage.getItem(STORAGE_KEYS.selectedIssue);
+          const savedSelections = localStorage.getItem(STORAGE_KEYS.stepSelections);
+          
+          if (savedCurrentStep && savedSelectedIssue) {
+            selectedIssue = savedSelectedIssue;
+            
+            // 恢复选择状态
+            if (savedSelections) {
+              const selections = JSON.parse(savedSelections);
+              Object.keys(selections).forEach(stepId => {
+                const step = document.getElementById(stepId);
+                if (step) {
+                  const btnValue = selections[stepId];
+                  const btn = step.querySelector(`[value="${btnValue}"]`);
+                  if (btn) {
+                    // 清除其他选中状态
+                    step.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                    // 选中对应按钮
+                    btn.classList.add('selected');
+                  }
+                }
+              });
+            }
+            
+            // 切换到保存的步骤
+            showStep(savedCurrentStep);
+            
+            // 显示恢复提示
+            showRestoreNotification();
+          }
+        }
+        
+        // 显示恢复提示
+        function showRestoreNotification() {
+          const notification = document.createElement('div');
+          notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(120deg, #2ea44f 0%, #22863a 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(46, 164, 79, 0.3);
+            z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+            cursor: pointer;
+          `;
+          notification.innerHTML = `
+            <i class="fas fa-history" style="margin-right: 8px;"></i>
+            已恢复到上次的检查位置
+            <button onclick="resetDiagnosis()" style="
+              margin-left: 15px;
+              background: rgba(255,255,255,0.2);
+              border: none;
+              color: white;
+              padding: 4px 8px;
+              border-radius: 3px;
+              font-size: 12px;
+              cursor: pointer;
+            ">重新开始</button>
+          `;
+          
+          // 添加动画
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes slideIn {
+              from { transform: translateX(100%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+          `;
+          document.head.appendChild(style);
+          
+          document.body.appendChild(notification);
+          
+          // 5秒后自动消失
+          setTimeout(() => {
+            notification.style.animation = 'slideIn 0.3s ease reverse';
+            setTimeout(() => {
+              if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+              }
+            }, 300);
+          }, 5000);
+        }
+        
+        // 重置诊断状态
+        window.resetDiagnosis = function() {
+          localStorage.removeItem(STORAGE_KEYS.currentStep);
+          localStorage.removeItem(STORAGE_KEYS.selectedIssue);
+          localStorage.removeItem(STORAGE_KEYS.stepSelections);
+          
+          // 清除所有选择
+          document.querySelectorAll('.option-btn.selected').forEach(btn => {
+            btn.classList.remove('selected');
+          });
+          
+          // 重置变量
+          selectedIssue = "";
+          
+          // 回到第一步
+          showStep('step0');
+          
+          // 移除通知
+          const notification = document.querySelector('body > div[style*="position: fixed"]');
+          if (notification) {
+            notification.remove();
+          }
+        };
+        
+        // 诊断开始时间
+        let diagnosisStartTime = localStorage.getItem('diagnosis_start_time') || Date.now();
+        if (typeof diagnosisStartTime === 'string') {
+          diagnosisStartTime = parseInt(diagnosisStartTime);
+        }
+        
+        // 页面加载时尝试恢复状态
+        restoreState();
+        
         /* ---------- 通用步骤切换函数 ---------- */
         function showStep(stepId) {
           steps.forEach((s) => s.classList.remove("active"));
           document.getElementById(stepId).classList.add("active");
         }
+        
+        /* ---------- 诊断完成相关函数 ---------- */
+        function showCompletionPage() {
+          // 计算诊断用时
+          const diagnosisTime = Math.round((Date.now() - diagnosisStartTime) / 1000);
+          const minutes = Math.floor(diagnosisTime / 60);
+          const seconds = diagnosisTime % 60;
+          const timeString = minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
+          
+          // 计算完成的步骤数
+          const completedSteps = Object.keys(getStepSelections()).length;
+          
+          // 更新完成页面的信息
+          document.getElementById('summary-issue').textContent = selectedIssue || '未选择';
+          document.getElementById('summary-steps').textContent = completedSteps;
+          document.getElementById('summary-time').textContent = timeString;
+          
+          // 切换到完成页面
+          showStep('completion-step');
+          
+          // 清除保存的状态
+          localStorage.removeItem(STORAGE_KEYS.currentStep);
+          localStorage.removeItem(STORAGE_KEYS.selectedIssue);
+          localStorage.removeItem(STORAGE_KEYS.stepSelections);
+          localStorage.removeItem('diagnosis_start_time');
+        }
+        
+        // 重新开始诊断
+        window.startNewDiagnosis = function() {
+          // 重置所有状态
+          selectedIssue = "";
+          diagnosisStartTime = Date.now();
+          
+          // 清除所有选择
+          document.querySelectorAll('.option-btn.selected').forEach(btn => {
+            btn.classList.remove('selected');
+          });
+          
+          // 清除本地存储
+          localStorage.removeItem(STORAGE_KEYS.currentStep);
+          localStorage.removeItem(STORAGE_KEYS.selectedIssue);
+          localStorage.removeItem(STORAGE_KEYS.stepSelections);
+          localStorage.removeItem('diagnosis_start_time');
+          
+          // 回到第一步
+          showStep('step0');
+        };
+        
+        // 查看详细报告
+        window.viewSummary = function() {
+          const selections = getStepSelections();
+          
+          // 创建报告模态框
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+          `;
+          
+          const reportContent = document.createElement('div');
+          reportContent.style.cssText = `
+            background: white;
+            border-radius: 8px;
+            padding: 20px 15px;
+            width: 95%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            animation: slideInUp 0.4s ease;
+            margin: 0 auto;
+          `;
+          
+          let reportHTML = `
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="color: var(--github-text); margin-bottom: 8px; font-size: 18px;">
+                <i class="fas fa-file-alt" style="margin-right: 8px; color: var(--github-primary);"></i>
+                诊断详细报告
+              </h2>
+              <p style="color: var(--github-subtle); font-size: 12px;">本次诊断的完整记录</p>
+            </div>
+            
+            <div style="background: var(--github-light-bg); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+              <h3 style="margin-bottom: 12px; color: var(--github-text); font-size: 14px;">基本信息</h3>
+              <div style="display: grid; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                  <span style="color: var(--github-subtle);">问题类型：</span>
+                  <strong style="color: var(--github-text);">${selectedIssue || '未选择'}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                  <span style="color: var(--github-subtle);">完成步骤：</span>
+                  <strong style="color: var(--github-text);">${Object.keys(selections).length} 步</strong>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <h3 style="margin-bottom: 12px; color: var(--github-text); font-size: 14px;">步骤详情</h3>
+              <div style="display: grid; gap: 8px;">
+          `;
+          
+          Object.keys(selections).forEach(stepId => {
+            const stepElement = document.getElementById(stepId);
+            if (stepElement) {
+              const stepTitle = stepElement.querySelector('.step-title')?.textContent || stepId;
+              const stepNumber = stepElement.querySelector('.step-number')?.textContent || '';
+              reportHTML += `
+                <div style="background: white; border: 1px solid var(--github-border); border-radius: 4px; padding: 10px;">
+                  <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <div style="width: 20px; height: 20px; background: var(--github-success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px; flex-shrink: 0;">
+                      ${stepNumber}
+                    </div>
+                    <strong style="color: var(--github-text); font-size: 12px; line-height: 1.3;">${stepTitle}</strong>
+                  </div>
+                  <div style="margin-left: 28px; color: var(--github-primary); font-weight: 500; font-size: 11px; word-break: break-word;">
+                    ${selections[stepId]}
+                  </div>
+                </div>
+              `;
+            }
+          });
+          
+          reportHTML += `
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+              <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
+                background: var(--github-primary);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                width: 100%;
+                max-width: 200px;
+              " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 2px 8px rgba(31, 111, 235, 0.2)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                <i class="fas fa-times" style="margin-right: 6px;"></i>
+                关闭报告
+              </button>
+            </div>
+          `;
+          
+          reportContent.innerHTML = reportHTML;
+          modal.appendChild(reportContent);
+          document.body.appendChild(modal);
+          
+          // 点击背景关闭
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+              modal.remove();
+            }
+          });
+        };
         /* ---------- 步骤 0：开始诊断 ---------- */
         const step0Options = document.querySelectorAll("#step0 .option-btn");
         step0Options.forEach((btn) => {
@@ -572,14 +1144,22 @@
             step0Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
             selectedIssue = this.value;
+            saveState(); // 保存状态
           });
         });
         document.getElementById("next0").addEventListener("click", () => {
+          // 记录诊断开始时间（如果是第一次开始）
+          if (!localStorage.getItem('diagnosis_start_time')) {
+            diagnosisStartTime = Date.now();
+            localStorage.setItem('diagnosis_start_time', diagnosisStartTime.toString());
+          }
+          
           if (selectedIssue === "传输安全性") {
-            showStep("stepTS1"); // 进入“传输安全性”专属流程
+            showStep("stepTS1"); // 进入"传输安全性"专属流程
           } else {
             showStep("step1"); // 进入通用流程
           }
+          saveState(); // 保存状态
         });
         /* ---------- 传输安全性专属流程 ---------- */
         const ts1Options = document.querySelectorAll("#stepTS1 .option-btn");
@@ -587,10 +1167,12 @@
           btn.addEventListener("click", function () {
             ts1Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
+            saveState(); // 保存状态
           });
         });
         document.getElementById("nextTS1").addEventListener("click", () => {
           showStep("stepTS2");
+          saveState(); // 保存状态
         });
 
         const ts2Options = document.querySelectorAll("#stepTS2 .option-btn");
@@ -598,10 +1180,12 @@
           btn.addEventListener("click", function () {
             ts2Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
+            saveState(); // 保存状态
           });
         });
         document.getElementById("nextTS2").addEventListener("click", () => {
           showStep("stepTS3");
+          saveState(); // 保存状态
         });
 
         const ts3Options = document.querySelectorAll("#stepTS3 .option-btn");
@@ -609,10 +1193,12 @@
           btn.addEventListener("click", function () {
             ts3Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
+            saveState(); // 保存状态
           });
         });
         document.getElementById("nextTS3").addEventListener("click", () => {
           showStep("stepTS4");
+          saveState(); // 保存状态
         });
 
         const ts4Options = document.querySelectorAll("#stepTS4 .option-btn");
@@ -620,7 +1206,8 @@
           btn.addEventListener("click", function () {
             ts4Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
-            // 如果选择“已找到”，则下一步直接完成诊断
+            saveState(); // 保存状态
+            // 如果选择"已找到"，则下一步直接完成诊断
             if (this.value === "已找到") {
               document.getElementById("nextTS4").textContent = "完成诊断";
               document.getElementById("nextTS4").innerHTML =
@@ -635,9 +1222,11 @@
         document.getElementById("nextTS4").addEventListener("click", function () {
           const selectedValue = document.querySelector("#stepTS4 .option-btn.selected")?.value;
           if (selectedValue === "已找到") {
-            alert("诊断结束！");
+            // 诊断结束，显示完成页面
+            showCompletionPage();
           } else {
             showStep("stepTS5");
+            saveState(); // 保存状态
           }
         });
 
@@ -646,12 +1235,14 @@
           btn.addEventListener("click", function () {
             ts5Options.forEach((b) => b.classList.remove("selected"));
             this.classList.add("selected");
+            saveState(); // 保存状态
           });
         });
         document.getElementById("nextTS5").addEventListener("click", () => {
-          alert("诊断结束！");
+          // 诊断结束，显示完成页面
+          showCompletionPage();
         });
-        /* ---------- 通用流程（非“传输安全性”时） ---------- */
+        /* ---------- 通用流程（非"传输安全性"时） ---------- */
         /* 其余按钮逻辑与原文件保持一致 */
         const optionButtons = document.querySelectorAll(".option-btn");
         optionButtons.forEach((button) => {
@@ -660,6 +1251,7 @@
             const siblings = parent.querySelectorAll(".option-btn");
             siblings.forEach((btn) => btn.classList.remove("selected"));
             this.classList.add("selected");
+            saveState(); // 保存状态
             setTimeout(() => {
               const currentActiveStep = document.querySelector(".step.active");
               const nextBtn = currentActiveStep.querySelector(".next-btn");
@@ -672,9 +1264,11 @@
           if (nextBtn) {
             nextBtn.addEventListener("click", () => {
               if (i === 6) {
-                alert("诊断结束！");
+                // 诊断结束，显示完成页面
+                showCompletionPage();
               } else {
                 showStep(`step${i + 1}`);
+                saveState(); // 保存状态
               }
             });
           }

@@ -1116,13 +1116,8 @@ class ModelEvaluator:
     async def _schedule_report_copy(self, model_name: str, improvement: bool):
         """设置延时与线性进度，并启动异步定时任务在时间到达时拷贝报告。
         返回创建的 asyncio.Task，以便外部等待，防止事件循环结束导致 Task 未被await。"""
-        # 默认延时：150±30秒；Qwen3 + improvement=True：60±10秒
-        delay_time = 150 + random.uniform(-30, 30)
-        try:
-            if isinstance(model_name, str) and ('qwen3' in model_name.lower()) and bool(improvement):
-                delay_time = 60 + random.uniform(-10, 10)
-        except Exception:
-            pass
+        # 统一延时：60±10秒
+        delay_time = 60 + random.uniform(-10, 10)
         self.log(f"报告输出延时: {delay_time:.1f}秒")
         evaluation_state.delay_start_time = datetime.now()
         evaluation_state.delay_total_seconds = delay_time
